@@ -1051,6 +1051,10 @@ export default {
         tool: '工具',
         system: '系统',
       },
+      image: {
+        preview: '图片预览',
+        unavailable: '图片不可用',
+      },
       sync: {
         syncing: '实时同步中...',
         syncedAt: '已同步 {time}',

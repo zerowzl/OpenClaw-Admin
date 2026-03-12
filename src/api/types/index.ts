@@ -125,7 +125,7 @@ export interface SendParams {
 }
 
 export interface ChatMessageContent {
-  type: 'text' | 'thinking' | 'tool_call' | 'tool_result'
+  type: 'text' | 'thinking' | 'tool_call' | 'tool_result' | 'image'
   text?: string
   thinking?: string
   id?: string
@@ -133,6 +133,10 @@ export interface ChatMessageContent {
   arguments?: Record<string, unknown>
   content?: unknown
   isError?: boolean
+  mimeType?: string
+  bytes?: number
+  data?: string
+  mediaPath?: string
 }
 
 export interface ChatMessage {

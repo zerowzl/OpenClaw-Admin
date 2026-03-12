@@ -1051,6 +1051,10 @@ export default {
         tool: 'Tool',
         system: 'System',
       },
+      image: {
+        preview: 'Image Preview',
+        unavailable: 'Image Unavailable',
+      },
       sync: {
         syncing: 'Syncing...',
         syncedAt: 'Synced {time}',

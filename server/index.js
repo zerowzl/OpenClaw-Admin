@@ -3,7 +3,7 @@ import cors from 'cors'
 import { createServer } from 'http'
 import { randomUUID } from 'crypto'
 import { fileURLToPath } from 'url'
-import { dirname, join, resolve, basename, extname } from 'path'
+import { dirname, join, resolve, basename, extname, sep } from 'path'
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, unlinkSync, stat, promises as fsPromises, createReadStream } from 'fs'
 import { OpenClawGateway } from './gateway.js'
 import { parse } from 'dotenv'
@@ -2160,6 +2160,62 @@ app.delete('/api/wizard/tasks/:id', authMiddleware, (req, res) => {
     res.json({ ok: true })
   } catch (err) {
     console.error('[Wizard] Delete task error:', err)
+    res.status(500).json({ ok: false, error: { message: err.message } })
+  }
+})
+
+// Media API endpoint
+app.get('/api/media', (req, res) => {
+  try {
+    const path = req.query.path
+    if (!path) {
+      return res.status(400).json({ ok: false, error: { message: 'Path parameter is required' } })
+    }
+    
+    // Prevent directory traversal
+    const safePath = path.replace(/\.\./g, '').replace(/\//g, sep)
+    const mediaDir = '/home/ubuntu/.openclaw/media'
+    const fullPath = resolve(mediaDir, safePath)
+    
+    // Ensure the file is within the media directory
+    if (!fullPath.startsWith(mediaDir)) {
+      return res.status(403).json({ ok: false, error: { message: 'Access denied' } })
+    }
+    
+    if (!existsSync(fullPath)) {
+      return res.status(404).json({ ok: false, error: { message: 'File not found' } })
+    }
+    
+    const stats = statSync(fullPath)
+    if (!stats.isFile()) {
+      return res.status(400).json({ ok: false, error: { message: 'Not a file' } })
+    }
+    
+    // Set appropriate content type based on file extension
+    const ext = extname(fullPath).toLowerCase()
+    const contentTypeMap = {
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml'
+    }
+    
+    const contentType = contentTypeMap[ext] || 'application/octet-stream'
+    res.setHeader('Content-Type', contentType)
+    res.setHeader('Content-Length', stats.size)
+    
+    // Stream the file
+    const stream = createReadStream(fullPath)
+    stream.pipe(res)
+    
+    stream.on('error', (err) => {
+      console.error('[Media] Error streaming file:', err.message)
+      res.status(500).json({ ok: false, error: { message: 'Internal server error' } })
+    })
+  } catch (err) {
+    console.error('[Media] Error:', err.message)
     res.status(500).json({ ok: false, error: { message: err.message } })
   }
 })
