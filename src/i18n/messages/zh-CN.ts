@@ -218,7 +218,7 @@ export default {
       channels: {
         qqbot: {
           label: 'QQ',
-          description: '面向 QQ 群与私聊场景，推荐仅配置 appId、clientSecret 与 markdownSupport。',
+          description: '面向 QQ 群与私聊场景。',
         },
         feishu: {
           label: '飞书',
@@ -226,7 +226,7 @@ export default {
         },
         dingtalk: {
           label: '钉钉',
-          description: '覆盖钉钉机器人接入场景，推荐仅配置 clientId 与 clientSecret。',
+          description: '覆盖钉钉机器人接入场景。',
         },
         wecom: {
           label: '企业微信',
@@ -259,11 +259,14 @@ export default {
         enabled: '启用渠道',
         appId: 'App ID',
         clientId: 'Client ID',
+        botId: 'Bot ID',
         markdownSupport: 'Markdown 支持',
       },
       placeholders: {
         qqAppId: '输入 QQ App ID',
+        feishuAppId: '输入飞书 App ID',
         dingtalkClientId: '输入钉钉 Client ID',
+        wecomBotId: '输入企业微信 Bot ID',
         secret: '输入新值（留空不变更）',
       },
       credentialsTitle: '凭证更新（掩码）',

@@ -256,14 +256,17 @@ export default {
       remoteInstallFallback: 'If remote install fails, run the following commands on the Gateway server and try again:',
       basicConfigTitle: 'Basic config',
       labels: {
-        enabled: 'Enable channel',
+        enabled: 'Enabled',
         appId: 'App ID',
         clientId: 'Client ID',
+        botId: 'Bot ID',
         markdownSupport: 'Markdown support',
       },
       placeholders: {
         qqAppId: 'Enter QQ App ID',
+        feishuAppId: 'Enter Feishu App ID',
         dingtalkClientId: 'Enter DingTalk Client ID',
+        wecomBotId: 'Enter WeCom Bot ID',
         secret: 'Enter new value (leave blank to keep)',
       },
       credentialsTitle: 'Credentials (masked)',

@@ -57,7 +57,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'channels',
         name: 'Channels',
-        component: () => import('@/views/channels/ChannelsPage.vue'),
+        component: () => import('@/views/channels/NewChannelsPage.vue'),
         meta: { titleKey: 'routes.channels', icon: 'GitNetworkOutline' },
       },
       {
