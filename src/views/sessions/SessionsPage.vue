@@ -24,6 +24,7 @@ import {
   AddOutline,
   ChatbubblesOutline,
   RefreshOutline,
+  RemoveOutline,
   SearchOutline,
   TimeOutline,
   TrashOutline,
@@ -63,6 +64,19 @@ const createForm = ref({
 })
 const checkedRowKeys = ref<string[]>([])
 const batchDeleting = ref(false)
+
+const allSessionKeys = computed(() => filteredSessions.value.map((s) => s.key))
+const isAllSelected = computed(() => {
+  if (allSessionKeys.value.length === 0) return false
+  return allSessionKeys.value.every((key) => checkedRowKeys.value.includes(key))
+})
+const isPartialSelected = computed(() => {
+  if (allSessionKeys.value.length === 0) return false
+  const selectedCount = allSessionKeys.value.filter((key) =>
+    checkedRowKeys.value.includes(key)
+  ).length
+  return selectedCount > 0 && selectedCount < allSessionKeys.value.length
+})
 
 const sortOptions = computed<SelectOption[]>(() => ([
   { label: t('pages.sessions.list.sort.recent'), value: 'recent' },
@@ -429,6 +443,14 @@ async function handleBatchDelete() {
   }
 }
 
+function handleSelectAll() {
+  if (isAllSelected.value) {
+    checkedRowKeys.value = []
+  } else {
+    checkedRowKeys.value = [...allSessionKeys.value]
+  }
+}
+
 function openCreateModal() {
   createForm.value = {
     agentId: 'main',
@@ -466,6 +488,19 @@ async function handleCreateSession() {
       </template>
       <template #header-extra>
         <NSpace :size="8">
+          <NButton
+            v-if="filteredSessions.length > 0"
+            size="small"
+            :type="isAllSelected ? 'warning' : 'default'"
+            :ghost="!isAllSelected && !isPartialSelected"
+            @click="handleSelectAll"
+          >
+            <template #icon>
+              <NIcon :component="isAllSelected ? RemoveOutline : AddOutline" />
+            </template>
+            {{ isAllSelected ? t('pages.sessions.list.deselectAll') : t('pages.sessions.list.selectAll') }}
+            ({{ filteredSessions.length }})
+          </NButton>
           <NPopconfirm
             v-if="checkedRowKeys.length > 0"
             :disabled="batchDeleting"

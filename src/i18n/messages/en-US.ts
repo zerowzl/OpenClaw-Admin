@@ -1282,6 +1282,8 @@ export default {
         batchDeleteSuccess: '{count} sessions deleted successfully',
         batchDeletePartial: '{deleted} sessions deleted, {failed} failed',
         batchDeleteFailed: 'Batch delete failed',
+        selectAll: 'Select All',
+        deselectAll: 'Deselect All',
       },
       detail: {
         title: 'Session Detail',

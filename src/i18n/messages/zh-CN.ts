@@ -1285,6 +1285,8 @@ export default {
         batchDeleteSuccess: '已成功删除 {count} 个会话',
         batchDeletePartial: '已删除 {deleted} 个会话，{failed} 个失败',
         batchDeleteFailed: '批量删除失败',
+        selectAll: '全选',
+        deselectAll: '取消全选',
       },
       detail: {
         title: '会话详情',
