@@ -1509,12 +1509,31 @@ watch(() => chatStore.messages, (newMessages, oldMessages) => {
   }
 }, { deep: true })
 
+function handleCodeCopy(event: Event) {
+  const target = event.target as HTMLElement
+  const button = target.closest('.code-copy-btn') as HTMLButtonElement
+  if (!button) return
+
+  const code = button.dataset.code || ''
+  navigator.clipboard.writeText(code).then(() => {
+    button.classList.add('copied')
+    button.title = 'Copied!'
+    setTimeout(() => {
+      button.classList.remove('copied')
+      button.title = 'Copy code'
+    }, 2000)
+  }).catch((err) => {
+    console.error('Failed to copy:', err)
+  })
+}
+
 onMounted(async () => {
   await officeStore.loadOfficeData()
   await sessionStore.fetchSessions()
   
   initCharacters()
   updatePositions()
+  document.addEventListener('click', handleCodeCopy)
   
   setTimeout(() => {
     centerScene()
@@ -1547,6 +1566,7 @@ onUnmounted(() => {
   if (animationFrame) cancelAnimationFrame(animationFrame)
   eventCleanups.forEach(cleanup => cleanup())
   eventCleanups.length = 0
+  document.removeEventListener('click', handleCodeCopy)
 })
 </script>
 
@@ -3188,6 +3208,86 @@ onUnmounted(() => {
 .tooltip-content :deep(pre code) {
   background: none;
   padding: 0;
+}
+
+/* —— 代码块容器（带行号） —— */
+.tooltip-content :deep(.code-block-container) {
+  display: flex;
+  position: relative;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  overflow-x: auto;
+}
+
+.tooltip-content :deep(.code-block-container pre) {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.tooltip-content :deep(.code-line-numbers) {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: right;
+  user-select: none;
+  min-width: 32px;
+}
+
+.tooltip-content :deep(.line-number) {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0 2px;
+}
+
+.tooltip-content :deep(.code-content) {
+  flex: 1;
+  padding: 8px;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.tooltip-content :deep(.code-content code) {
+  display: block;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.tooltip-content :deep(.code-copy-btn) {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.tooltip-content :deep(.code-block-container:hover .code-copy-btn) {
+  opacity: 1;
+}
+
+.tooltip-content :deep(.code-copy-btn:hover) {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.tooltip-content :deep(.code-copy-btn.copied) {
+  color: #818cf8;
 }
 
 .tooltip-content :deep(ul),
