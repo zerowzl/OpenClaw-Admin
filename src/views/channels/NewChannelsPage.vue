@@ -267,6 +267,7 @@ async function installChannel(meta: ChannelCard): Promise<void> {
       channelStore.setChannelField(channelKey, 'connectionMode', 'websocket')
       channelStore.setChannelField(channelKey, 'domain', 'feishu')
       channelStore.setChannelField(channelKey, 'groupPolicy', 'open')
+      channelStore.setChannelField(channelKey, 'dmPolicy', 'open')
     }
     
     refreshExpandedPanels()
