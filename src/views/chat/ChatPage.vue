@@ -270,7 +270,8 @@ const sessionTokenStatusText = computed(() =>
 function resolveUsageSession(sessions: SessionsUsageSession[], key: string): SessionsUsageSession | null {
   if (sessions.length === 0) return null
   const normalized = key.trim()
-  return sessions.find((item) => item.key === normalized) || sessions[0] || null
+  const found = sessions.find((item) => item.key === normalized)
+  return found || null
 }
 
 async function fetchSessionTokenUsage(rawKey: string) {
@@ -2470,6 +2471,24 @@ watch(
   { flush: 'post' }
 )
 
+function handleCodeCopy(event: Event) {
+  const target = event.target as HTMLElement
+  const button = target.closest('.code-copy-btn') as HTMLButtonElement
+  if (!button) return
+
+  const code = button.dataset.code || ''
+  navigator.clipboard.writeText(code).then(() => {
+    button.classList.add('copied')
+    button.title = 'Copied!'
+    setTimeout(() => {
+      button.classList.remove('copied')
+      button.title = 'Copy code'
+    }, 2000)
+  }).catch((err) => {
+    console.error('Failed to copy:', err)
+  })
+}
+
 onMounted(async () => {
   nowTimer = setInterval(() => {
     nowMs.value = Date.now()
@@ -2478,6 +2497,7 @@ onMounted(async () => {
   loadQuickReplies()
   void configStore.fetchConfig()
   void skillStore.fetchSkills()
+  document.addEventListener('click', handleCodeCopy)
 
   eventCleanups.push(
     wsStore.subscribe('event', (evt: unknown) => {
@@ -2540,6 +2560,7 @@ onUnmounted(() => {
     clearInterval(nowTimer)
     nowTimer = null
   }
+  document.removeEventListener('click', handleCodeCopy)
 })
 
 async function handleRefreshChatData() {
@@ -4022,6 +4043,86 @@ async function handleSend() {
   border-radius: 3px;
   border: 1px solid var(--md-code-border);
   background: var(--md-code-bg);
+}
+
+/* —— 代码块容器（带行号） —— */
+.chat-markdown :deep(.code-block-container) {
+  display: flex;
+  position: relative;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid var(--md-code-border);
+  background: var(--md-pre-bg);
+  overflow-x: auto;
+}
+
+.chat-markdown :deep(.code-block-container pre) {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.chat-markdown :deep(.code-line-numbers) {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 8px;
+  background: rgba(0, 0, 0, 0.03);
+  border-right: 1px solid var(--md-code-border);
+  text-align: right;
+  user-select: none;
+  min-width: 40px;
+}
+
+.chat-markdown :deep(.line-number) {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.87em;
+  line-height: 1.52;
+  color: var(--text-tertiary);
+  padding: 0 4px;
+}
+
+.chat-markdown :deep(.code-content) {
+  flex: 1;
+  padding: 10px 12px;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.chat-markdown :deep(.code-content code) {
+  display: block;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.87em;
+  line-height: 1.52;
+  white-space: pre;
+}
+
+.chat-markdown :deep(.code-copy-btn) {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 4px 6px;
+  border: 1px solid var(--md-code-border);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.chat-markdown :deep(.code-block-container:hover .code-copy-btn) {
+  opacity: 1;
+}
+
+.chat-markdown :deep(.code-copy-btn:hover) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.chat-markdown :deep(.code-copy-btn.copied) {
+  color: var(--link-color);
 }
 
 /* —— 分割线 —— */
