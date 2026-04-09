@@ -65,21 +65,21 @@ const CHINA_CHANNELS: ChinaChannelMeta[] = [
     icon: faQq,
     pluginPackages: ['@openclaw-china/qqbot'],
     pluginIds: ['qqbot'],
-    guideUrl: 'https://docs.openclaw.ai/channels/qqbot',
+    guideUrl: 'https://github.com/tencent-connect/openclaw-qqbot/blob/main/README.zh.md',
   },
   {
     key: 'feishu',
     icon: faPaperPlane,
     pluginPackages: ['@openclaw-china/feishu-china', '@openclaw/feishu'],
     pluginIds: ['feishu', 'feishu-china'],
-    guideUrl: 'https://docs.openclaw.ai/channels/feishu',
+    guideUrl: 'https://docs.openclaw.ai/zh-CN/channels/feishu',
   },
   {
     key: 'dingtalk',
     icon: faComments,
     pluginPackages: ['@openclaw-china/dingtalk'],
     pluginIds: ['dingtalk'],
-    guideUrl: 'https://github.com/BytePioneer-AI/openclaw-china/blob/main/doc/guides/dingtalk/configuration.md',
+    guideUrl: 'https://github.com/largezhou/openclaw-dingtalk',
   },
   {
     key: 'wecom',
@@ -142,7 +142,7 @@ function resolveManagedChannelKey(focusKey: ChinaChannelMeta['key']): string {
   )
   if (runtimeKey) return runtimeKey
 
-  return focusKey
+  return focusKey === 'dingtalk' ? 'ddingtalk' : focusKey
 }
 
 function readChannelConfig(channelKey: string): Record<string, unknown> {
@@ -243,10 +243,20 @@ function buildPluginInstallCommands(pluginPackages: string[]): string[] {
 async function installChannel(meta: ChannelCard): Promise<void> {
   const channelKey = meta.channelKey || resolveManagedChannelKey(meta.key)
   installLoading.value[channelKey] = true
+  let isRemoteUnsupported = false
   try {
     let installedPluginName = ''
     if (!channelStore.isPluginInstalled(meta.pluginPackages, { channelKey, pluginIds: meta.pluginIds })) {
-      installedPluginName = await channelStore.installChannelPlugin(meta.pluginPackages)
+      try {
+        installedPluginName = await channelStore.installChannelPlugin(meta.pluginPackages)
+      } catch (innerErr) {
+        const errStr = innerErr instanceof Error ? innerErr.message : String(innerErr)
+        if (/unknown method/i.test(errStr) || /method not found/i.test(errStr)) {
+          isRemoteUnsupported = true
+        } else {
+          throw innerErr
+        }
+      }
     }
 
     channelStore.ensureDraftChannel(channelKey)
@@ -268,11 +278,7 @@ async function installChannel(meta: ChannelCard): Promise<void> {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : t('pages.channels.installFailed')
-    if (/unknown method/i.test(errorMessage) || /method not found/i.test(errorMessage)) {
-      message.error(t('pages.channels.remoteInstallUnsupported', { channel: meta.label || meta.key }))
-    } else {
-      message.error(t('pages.channels.remoteInstallFailed', { channel: meta.label || meta.key, error: errorMessage }))
-    }
+    message.error(t('pages.channels.remoteInstallFailed', { channel: meta.label || meta.key, error: errorMessage }))
   } finally {
     installLoading.value[channelKey] = false
   }
@@ -358,13 +364,13 @@ onMounted(() => {
                   </span>
                   <NText strong>{{ card.label }}</NText>
                   <NText depth="3" class="channel-key-text">{{ card.channelKey }}</NText>
-                  <NTag
+                  <!-- <NTag
                     :type="pluginStatusType(card)"
                     size="small"
                     :bordered="false"
                   >
                     {{ pluginStatusLabel(card) }}
-                  </NTag>
+                  </NTag> -->
                   <NTag
                     :type="card.configured ? 'success' : 'default'"
                     size="small"
