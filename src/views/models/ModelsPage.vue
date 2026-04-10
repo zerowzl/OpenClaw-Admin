@@ -118,8 +118,8 @@ const QUICK_PROVIDER_PRESETS: Record<QuickProviderKey, QuickProviderPreset> = {
     providerId: 'bailian',
     api: 'openai-completions',
     baseUrl: 'https://coding.dashscope.aliyuncs.com/v1',
-    modelId: 'qwen3.5-plus',
-    modelName: 'qwen3.5-plus',
+    modelId: 'qwen3.6-plus',
+    modelName: 'qwen3.6-plus',
     input: ['text', 'image'],
     docsUrl: 'https://help.aliyun.com/zh/model-studio/coding-plan',
   },
@@ -2108,6 +2108,7 @@ async function handleQuickProviderSetup(key: QuickProviderKey) {
     if (key === 'bailian') {
       // 阿里云百炼完整模型列表
       const bailianModels = [
+        { id: 'qwen3.6-plus', name: 'qwen3.6-plus', reasoning: false, input: ['text', 'image'], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 1000000, maxTokens: 65536, compat: { thinkingFormat: 'qwen' } },
         { id: 'qwen3.5-plus', name: 'qwen3.5-plus', reasoning: false, input: ['text', 'image'], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 1000000, maxTokens: 65536, compat: { thinkingFormat: 'qwen' } },
         { id: 'qwen3-max-2026-01-23', name: 'qwen3-max-2026-01-23', reasoning: false, input: ['text'], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 65536, compat: { thinkingFormat: 'qwen' } },
         { id: 'qwen3-coder-next', name: 'qwen3-coder-next', reasoning: false, input: ['text'], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 65536 },
